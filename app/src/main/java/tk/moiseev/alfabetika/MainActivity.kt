@@ -1,11 +1,17 @@
 package tk.moiseev.alfabetika
 
+import android.content.res.AssetFileDescriptor
 import android.content.res.Resources
+import android.media.AudioAttributes
+import android.media.AudioManager
+import android.media.SoundPool
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.ImageButton
+import android.widget.Toast
+import java.io.IOException
 import java.util.*
 
 class MainActivity
@@ -26,7 +32,11 @@ class MainActivity
         return items
     }
 
+    private var sounds : MutableList<Int> = (1..31).toMutableList()
     private var newDrawItems: MutableList<Int> = (1..31).toMutableList()
+
+    @Suppress("DEPRECATION")
+    var mSoundPool: SoundPool = SoundPool(3, AudioManager.STREAM_MUSIC, 0)
 
     override fun onLongClick(v: View?): Boolean {
 // перемешивание букв
@@ -65,7 +75,62 @@ class MainActivity
     }
 
     override fun onClick(v: View?) {
-        Log.d("click", "Hello")
+// звуки
+// get letter
+        var entryName:String = ""
+
+
+
+        when(v?.getId())
+        {
+            R.id.imageButton1 -> entryName = getResources().getResourceEntryName(newDrawItems[1])
+            R.id.imageButton2 -> entryName = getResources().getResourceEntryName(newDrawItems[3])
+            R.id.imageButton3 -> entryName = getResources().getResourceEntryName(newDrawItems[5])
+            R.id.imageButton4 -> entryName = getResources().getResourceEntryName(newDrawItems[7])
+            R.id.imageButton5 -> entryName = getResources().getResourceEntryName(newDrawItems[9])
+            R.id.imageButton6 -> entryName = getResources().getResourceEntryName(newDrawItems[11])
+            R.id.imageButton7 -> entryName = getResources().getResourceEntryName(newDrawItems[13])
+            R.id.imageButton8 -> entryName = getResources().getResourceEntryName(newDrawItems[15])
+            R.id.imageButton9 -> entryName = getResources().getResourceEntryName(newDrawItems[17])
+
+        }
+
+        Log.d("click", entryName.toString() +" | "+ v?.getId().toString())
+
+        val indexSound = entryName.replace("l","").toInt()
+
+        mSoundPool.play(sounds[indexSound-1], 1.5F, 1.5F, 1, 0, 1.0F)
+       // val snd:Int = loadSound(entryName + ".ogg")
+       // mSoundPool.play(snd, 1.0F, 1.0F, 1, 0, 1.0F)
+    }
+
+
+    fun loadSound(fileName: String):Int
+    {
+        var mAssetManager = this.getAssets()
+        var afd:AssetFileDescriptor
+
+        try {
+            afd = mAssetManager.openFd(fileName)
+        }
+        catch(e : IOException) {
+            Toast.makeText(getApplicationContext(), "Не могу загрузить файл " + fileName, Toast.LENGTH_SHORT).show()
+            return -1
+        }
+
+        return mSoundPool.load(afd, 1)
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        var i:Int = 1
+        for(s in sounds)
+        {
+            sounds[i-1] = loadSound("l"+i.toString()+".ogg")
+            i++
+        }
+
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -75,6 +140,8 @@ class MainActivity
         val button1: ImageButton = this.findViewById(R.id.imageButton1)
         button1.setOnClickListener(this)
         button1.setOnLongClickListener(this)
+
+        onLongClick(button1)
 
         val button2: ImageButton = this.findViewById(R.id.imageButton2)
         button2.setOnClickListener(this)
