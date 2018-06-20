@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">Alfabetika</string>
+    <string name="app_name">Звуки алфавита</string>
+    <string name="But_Desc">Letter</string>
 </resources>
